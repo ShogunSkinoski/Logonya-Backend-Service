@@ -1,8 +1,8 @@
-﻿using Domain.User.Model;
+﻿using Domain.Account.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Persistence.Configuration.UserConfiguration;
+namespace Infrastructure.Persistence.Configuration.AccountConfiguration;
 
 public class ApiKeyEntityConfiguration : IEntityTypeConfiguration<ApiKey>
 {

@@ -1,8 +1,8 @@
-﻿using Domain.User.Model;
+﻿using Domain.Account.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Database.Data.UserConfiguration;
+namespace Infrastructure.Database.Data.AccountConfiguration;
 
 internal class UserEntityConfiguration : IEntityTypeConfiguration<User>
 {
