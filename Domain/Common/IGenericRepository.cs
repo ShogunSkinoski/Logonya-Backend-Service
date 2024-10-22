@@ -4,8 +4,8 @@ namespace Domain.Common;
 
 public interface IGenericRepository<TEntity> where TEntity : class
 {
-    Task<TEntity> GetByIdAsyn(object id, CancellationToken cancellation = default);
-    Task<IEnumerable<TEntity>> GetAllByIdAsyn(CancellationToken cancellationToken = default);
+    Task<TEntity> GetByIdAsync(object id, CancellationToken cancellation = default);
+    Task<IEnumerable<TEntity>> GetAllByIdAsync(CancellationToken cancellationToken = default);
     Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default);
     Task AddAsync(TEntity entity, CancellationToken cancellationToken = default);
     void Update(TEntity entity);

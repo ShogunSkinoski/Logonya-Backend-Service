@@ -6,14 +6,14 @@ namespace Infrastructure.Persistence.Repository;
 
 public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class
 {
-    protected readonly DbContext _context;
+    protected readonly ApplicationDbContext _context;
     protected readonly DbSet<TEntity> _dbSet;
-    public GenericRepository(DbContext context)
+
+    public GenericRepository(ApplicationDbContext context)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _dbSet = context.Set<TEntity>();
     }
-
     public async Task AddAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         if (entity == null) throw new ArgumentNullException(nameof(entity));
@@ -25,12 +25,12 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         return await _dbSet.Where(predicate).ToListAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<TEntity>> GetAllByIdAsyn(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<TEntity>> GetAllByIdAsync(CancellationToken cancellationToken = default)
     {
         return await _dbSet.ToListAsync(cancellationToken);
     }
 
-    public async Task<TEntity> GetByIdAsyn(object id, CancellationToken cancellation = default)
+    public async Task<TEntity> GetByIdAsync(object id, CancellationToken cancellation = default)
     {
         return await _dbSet.FindAsync(new object[] {id}, cancellation);
     }
