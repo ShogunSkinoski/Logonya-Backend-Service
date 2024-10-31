@@ -47,6 +47,59 @@ public class JWTGenerator : IJWTGenerator
 
     public bool ValidateToken(string token)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrEmpty(token)) return false;
+        try
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = key,
+                ValidateIssuer = true,
+                ValidIssuer = _jwtSettings.Issuer,
+                ValidateAudience = true,
+                ValidAudience = _jwtSettings.Audience,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
+            tokenHandler.ValidateToken(token, tokenValidationParameters, out var validatedToken);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public (ClaimsPrincipal? Principal, SecurityToken? ValidatedToken) ValidateTokenWithClaims(string token)
+    {
+        try
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_jwtSettings.Secret);
+
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = true,
+                ValidIssuer = _jwtSettings.Issuer,
+                ValidateAudience = true,
+                ValidAudience = _jwtSettings.Audience,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
+
+            var principal = tokenHandler.ValidateToken(token,
+                tokenValidationParameters,
+                out SecurityToken validatedToken);
+
+            return (principal, validatedToken);
+        }
+        catch
+        {
+            return (null, null);
+        }
     }
 }

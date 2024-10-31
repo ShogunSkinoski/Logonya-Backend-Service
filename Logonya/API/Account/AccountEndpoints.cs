@@ -4,9 +4,9 @@ public static partial class AccountEndpoints
 {
     public static RouteGroupBuilder MapAccountEndpoints(this RouteGroupBuilder builder)
     {
-        builder.MapPost("account/register", AccountEndpoints.CreateAccountHandler);
-        builder.MapPost("account/login", AccountEndpoints.LoginAccountHandler);
-        builder.MapPost("account/api-keys", AccountEndpoints.CreateApiHandler);
+        builder.MapPost("account/register", AccountEndpoints.CreateAccountHandler).AllowAnonymous();
+        builder.MapPost("account/login", AccountEndpoints.LoginAccountHandler).AllowAnonymous();
+        builder.MapPost("account/api-keys", AccountEndpoints.CreateApiHandler).RequireAuthorization();
         return builder;
     }
 }
