@@ -6,7 +6,7 @@ public static partial class AccountEndpoints
     {
         builder.MapPost("account/register", AccountEndpoints.CreateAccountHandler).AllowAnonymous();
         builder.MapPost("account/login", AccountEndpoints.LoginAccountHandler).AllowAnonymous();
-        builder.MapPost("account/api-keys", AccountEndpoints.CreateApiHandler).RequireAuthorization();
+        builder.MapPost("account/{userId}/api-keys", AccountEndpoints.CreateApiHandler).RequireAuthorization();
         return builder;
     }
 }

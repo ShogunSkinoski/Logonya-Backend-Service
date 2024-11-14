@@ -10,6 +10,7 @@ public static class RepositoryInjectionExtension
     public static IServiceCollection AddRepositoriesAndUnitOfWork(this IServiceCollection services)
     {
         services.AddScoped<UserRepositoryPort, EfUserRepository>();
+        services.AddScoped<ApiKeyRepositoryPort, EfApiKeyRepository>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         return services;

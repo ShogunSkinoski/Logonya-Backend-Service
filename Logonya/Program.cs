@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Presentation.API.Account;
 using Presentation.API.Middleware;
+using Presentation.API.Swagger;
 using Presentation.Extensions;
 using System.Text;
 
@@ -53,7 +54,6 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Add Authorization
 builder.Services.AddAuthorization();
 
 // Add other services
@@ -72,7 +72,29 @@ builder.Services.AddSwaggerGen(options =>
                 "Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\n" +
                 "Example: \"Bearer 12345abcdef\"",
     });
+    options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+    {
+        Name = "X-API-KEY",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Description = "API Key authentication using the 'X-API-KEY' header",
+        Scheme = "ApiKey"
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement {
+        {
+            new OpenApiSecurityScheme {
+                Reference = new OpenApiReference {
+                    Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+    options.OperationFilter<SecurityRequirementsOperationFilter>();
+
 });
+builder.Services.AddMiddlewares();
 
 var app = builder.Build();
 
@@ -90,6 +112,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<JwtMiddleware>();
+app.UseMiddleware<ExceptionMiddleware>();
 // Map endpoints
 var routeGroup = app.MapGroup("api/v1");
 routeGroup.MapAccountEndpoints();

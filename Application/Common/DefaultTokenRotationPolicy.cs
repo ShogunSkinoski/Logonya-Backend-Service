@@ -15,7 +15,6 @@ public class DefaultTokenRotationPolicy : ITokenRotationPolicy
 
     public bool ShouldRotateToken(RefreshToken currentToken)
     {
-        // Rotate if the token is more than half its lifetime old
         return (DateTime.UtcNow - currentToken.CreatedAt) > (_tokenLifetime / 2);
     }
 }
