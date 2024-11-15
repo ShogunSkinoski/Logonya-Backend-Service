@@ -1,4 +1,6 @@
-﻿namespace Domain.Account.Model;
+﻿using Domain.Logging.Model;
+
+namespace Domain.Account.Model;
 public class User
 {
     public Guid Id { get; private set; }
@@ -7,6 +9,7 @@ public class User
     public string PasswordHash { get; private set; }
     public List<ApiKey> ApiKeys { get; private set; } = new List<ApiKey>();
     public List<RefreshToken> RefreshTokens { get; private set; } = new List<RefreshToken>();
+    public List<Log> Logs { get; private set; } = new List<Log>();
     public DateTime CreatedAt { get; private set; }
 
     public User(string username, string email, string passwordHash)
@@ -18,16 +21,22 @@ public class User
         CreatedAt = DateTime.UtcNow;
         ApiKeys = new List<ApiKey>();
         RefreshTokens = new List<RefreshToken>();
+        Logs = new List<Log>();
     }
     public void CreateNewApiKey(string name, string? description)
     {
         var key = Guid.NewGuid().ToString();
-        var apiKey = new ApiKey(name, key, description);
+        var apiKey = new ApiKey(name, key, description, Id);
         ApiKeys.Add(apiKey);
     }
     public void AddRefreshToken(RefreshToken refreshToken)
     {
         RefreshTokens.Add(refreshToken);
+    }
+
+    public void AddLog(Log log)
+    {
+        Logs.Add(log);
     }
 
     public void RemoveOldRefreshTokens(int daysToKeep)

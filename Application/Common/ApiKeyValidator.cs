@@ -19,7 +19,7 @@ public class ApiKeyValidator(
         if (string.IsNullOrEmpty(apiKey))
             return false;
         if (_memoryCache.TryGetValue<bool>(apiKey, out var _))
-            return false;
+            return true;
 
         try
         {

@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Presentation.API.Account;
+using Presentation.API.Logging;
 using Presentation.API.Middleware;
 using Presentation.API.Swagger;
 using Presentation.Extensions;
@@ -116,5 +117,6 @@ app.UseMiddleware<ExceptionMiddleware>();
 // Map endpoints
 var routeGroup = app.MapGroup("api/v1");
 routeGroup.MapAccountEndpoints();
+routeGroup.MapLoggingEndpoints();
 
 app.Run();

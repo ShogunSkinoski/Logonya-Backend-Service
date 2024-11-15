@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Domain/Log and child folders
+!Domain/Log/
+!Domain/Log/**
+

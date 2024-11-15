@@ -1,5 +1,4 @@
 ﻿using Application.Usecases.Account.CreateAccountCommand;
-using FluentResults;
 using MediatR;
 
 namespace Presentation.API.Account;
