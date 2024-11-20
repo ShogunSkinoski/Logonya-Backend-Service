@@ -1,4 +1,5 @@
 ﻿using Domain.Account.Model;
+using System.Text.Json;
 
 namespace Domain.Logging.Model;
 
@@ -10,7 +11,27 @@ public class Log
     public string Level { get; private set; }
     public string Source { get; private set; }
     public string Environment { get; private set; }
-    public Dictionary<string, string> Metadata { get; private set; }
+    private JsonDocument? _metadata;
+    private Dictionary<string, string>? _metadataCache;
+
+    public Dictionary<string, string> Metadata
+    {
+        get
+        {
+            if (_metadataCache == null && _metadata != null)
+            {
+                _metadataCache = JsonSerializer.Deserialize<Dictionary<string, string>>(_metadata);
+            }
+            return _metadataCache ?? new Dictionary<string, string>();
+        }
+        private set
+        {
+            _metadataCache = value;
+            _metadata = value != null
+                ? JsonDocument.Parse(JsonSerializer.Serialize(value))
+                : null;
+        }
+    }
     public Guid UserId { get; private set; }
     public User? User { get; private set; }
     public string? UserName { get; private set; }

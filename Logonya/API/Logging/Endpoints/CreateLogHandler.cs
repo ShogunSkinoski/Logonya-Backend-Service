@@ -30,7 +30,12 @@ public static partial class LoggingEndpoints
         };
 
         var result = await mediator.Send(command, cancellationToken);
-        var response = ApiResponse<CreateLogResponse>.FromResult(result);
-        return Results.Ok(response);
+
+        if (result.IsFailed)
+        {
+            return Results.BadRequest(ApiResponse<CreateLogResponse>.FromResult(result));
+        }
+
+        return Results.Ok(ApiResponse<CreateLogResponse>.FromResult(result));
     }
 }

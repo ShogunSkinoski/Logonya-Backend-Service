@@ -40,13 +40,14 @@ public class CreateLogValidator : BaseValidator<CreateLogCommand>
             .WithMessage("Environment must not exceed 50 characters.")
             .WithErrorCode("ENVIRONMENT_TOO_LONG");
 
-        RuleFor(x => x.IpAddress)
-            .MaximumLength(50)
-            .WithMessage("IP Address must not exceed 50 characters.")
-            .WithErrorCode("IP_ADDRESS_TOO_LONG")
-            .Matches(@"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$|^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$")
-            .WithMessage("Invalid IP address format.")
-            .WithErrorCode("INVALID_IP_ADDRESS");
+        //RuleFor(x => x.IpAddress)
+        //    .MaximumLength(50)
+        //    .WithMessage("IP Address must not exceed 50 characters.")
+        //    .WithErrorCode("IP_ADDRESS_TOO_LONG")
+        //    .Matches(@"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$|^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$")
+            
+        //    .WithMessage("Invalid IP address format.")
+        //    .WithErrorCode("INVALID_IP_ADDRESS");
 
         When(x => x.UserName != null, () =>
         {

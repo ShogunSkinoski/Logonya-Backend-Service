@@ -44,6 +44,7 @@ public class CreateLogCommandHandler : IRequestHandler<CreateLogCommand, Result<
             stackTrace: request.StackTrace
         );
 
+
         await _uow.GetRepository<LogRepositoryPort>().AddAsync(log, cancellationToken);
         await _uow.CompleteAsync(cancellationToken);
 

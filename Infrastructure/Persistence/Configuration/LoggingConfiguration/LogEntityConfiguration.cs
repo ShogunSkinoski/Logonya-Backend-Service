@@ -23,10 +23,11 @@ internal class LogEntityConfiguration : IEntityTypeConfiguration<Log>
         builder.Property(x => x.UserName).HasMaxLength(200);
         builder.Property(x => x.Exception);
         builder.Property(x => x.StackTrace);
-        
-        builder.Property(x => x.Metadata)
+
+        builder.Property("_metadata")
+            .HasColumnName("Metadata")
             .HasColumnType("jsonb");
-        
+
         builder.HasOne(x => x.User)
             .WithMany(u => u.Logs)
             .HasForeignKey(x => x.UserId)
