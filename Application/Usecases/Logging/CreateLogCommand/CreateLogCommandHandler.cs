@@ -1,4 +1,5 @@
 ﻿using Application.Common;
+using Domain.Account.Model;
 using Domain.Account.Port;
 using Domain.Common;
 using Domain.Logging.Model;
@@ -7,6 +8,7 @@ using FluentResults;
 using FluentValidation;
 
 using MediatR;
+using static Application.Usecases.Webhook.CreateWebhookCommand.CreateWebhookCommandValidator;
 
 namespace Application.Usecases.Logging.CreateLogCommand;
 
@@ -16,16 +18,20 @@ public class CreateLogCommandHandler : IRequestHandler<CreateLogCommand, Result<
     private readonly IValidator<CreateLogCommand> _validator;
     private readonly IMessagingProducer _messagingProducer;
     private readonly IKafkaSettings _kafkaSettings;
+    private readonly IWebhookService _webhookService;
+
     public CreateLogCommandHandler(
             IUnitOfWork uow,
             IValidator<CreateLogCommand> validator,
             IMessagingProducer messagingProducer,
-            IKafkaSettings kafkaSettings)
+            IKafkaSettings kafkaSettings,
+            IWebhookService webhookService)
     {
         _uow = uow;
         _validator = validator;
         _messagingProducer = messagingProducer;
         _kafkaSettings = kafkaSettings;
+        _webhookService = webhookService;
     }
 
     public async Task<Result<CreateLogResponse>> Handle(CreateLogCommand request, CancellationToken cancellationToken)
@@ -58,6 +64,26 @@ public class CreateLogCommandHandler : IRequestHandler<CreateLogCommand, Result<
         var message = CreateLogMessage.FromLog(log);
         var topic = _kafkaSettings.Topics["LogVectorization"].Name;
         _messagingProducer.SendMessage(topic, "LOG", message);
+
+        // If it's an error log, send error notification
+        if (log.Level.Equals("ERROR", StringComparison.OrdinalIgnoreCase))
+        {
+            await _webhookService.SendWebhookAsync(
+                WebhookEvents.ERROR_DETECTED,
+                new
+                {
+                    LogId = log.Id,
+                    Action = log.Action,
+                    Description = log.Description,
+                    Source = log.Source,
+                    Exception = log.Exception,
+                    StackTrace = log.StackTrace,
+                    CreatedAt = log.CreatedAt,
+                },
+                log.UserId,
+                cancellationToken
+            );
+        }
 
         return Result.Ok(new CreateLogResponse(
             id: log.Id,

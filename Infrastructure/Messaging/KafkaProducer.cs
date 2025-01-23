@@ -8,6 +8,7 @@ public class KafkaProducer : IMessagingProducer, IDisposable
 {
     private readonly IProducer<string, string> _kafkaProducer;
     private readonly IKafkaSettings _settings;
+    private readonly ConsumerConfig _consumerConfig;
 
     public KafkaProducer(IKafkaSettings settings)
     {
@@ -20,6 +21,13 @@ public class KafkaProducer : IMessagingProducer, IDisposable
             Acks = Acks.All
         };
         _kafkaProducer = new ProducerBuilder<string, string>(producerConfig).Build();
+
+        _consumerConfig = new ConsumerConfig
+        {
+            BootstrapServers = settings.BootstrapServers,
+            GroupId = "webhook-consumer-group",
+            AutoOffsetReset = AutoOffsetReset.Earliest
+        };
     }
 
     public void SendMessage<T>(string topic, string key, T message)
@@ -37,6 +45,31 @@ public class KafkaProducer : IMessagingProducer, IDisposable
             Value = serializedMessage,
             Timestamp = new Timestamp(DateTime.UtcNow)
         });
+    }
+
+    public async Task<T?> ConsumeMessage<T>(string topic, CancellationToken cancellationToken = default)
+    {
+        using var consumer = new ConsumerBuilder<string, string>(_consumerConfig)
+            .SetValueDeserializer(Deserializers.Utf8)
+            .Build();
+
+        consumer.Subscribe(topic);
+
+        try
+        {
+            var consumeResult = consumer.Consume(cancellationToken);
+            if (consumeResult == null) return default;
+
+            return JsonConvert.DeserializeObject<T>(consumeResult.Message.Value);
+        }
+        catch (Exception ex)
+        {
+            return default;
+        }
+        finally
+        {
+            consumer.Close();
+        }
     }
 
     public void Dispose()

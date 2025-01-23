@@ -1,11 +1,13 @@
 ﻿using Application.Common;
 using Domain.Common;
+using Domain.Logging.Port;
 using Infrastructure.Messaging;
+using Infrastructure.Persistence.Repository.Logging;
+using Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Anthropic.SDK;
-using Infrastructure.Services;
 
 namespace Infrastructure;
 
@@ -35,11 +37,14 @@ public static class DependencyInjection
         // Register hosted service for topic initialization
         services.AddHostedService<KafkaTopicInitializer>();
 
+        
+
         services.AddSingleton<AnthropicClient>(_ => new AnthropicClient(configuration["Anthropic:ApiKey"]));
         services.AddHttpClient<IRAGService, RAGService>();
-
+        // Register webhook related services
+        services.AddScoped<WebhookRepositoryPort, EfWebhookRepository>();
+        services.AddScoped<IWebhookService, WebhookService>();
+        services.AddHostedService<WebhookProcessingService>();
         return services;
     }
-
-   
 }
