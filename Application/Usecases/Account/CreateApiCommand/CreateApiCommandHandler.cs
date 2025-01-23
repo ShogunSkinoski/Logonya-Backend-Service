@@ -1,4 +1,5 @@
-﻿using Domain.Account.Port;
+﻿using Domain.Account.Model;
+using Domain.Account.Port;
 using Domain.Common;
 using FluentResults;
 using MediatR;
@@ -19,10 +20,15 @@ public class CreateApiCommandHandler(IUnitOfWork uow) : IRequestHandler<CreateAp
         if (user == null)
             Result.Fail(new Error("Invalid credentials")
                 .WithMetadata("ErrorCode", "INVALID_CREDENTIALS"));
-
-        user!.CreateNewApiKey(request.apiKeyName, request.description);
+        var apiKey = new ApiKey(
+            name: request.apiKeyName,
+            key: Guid.NewGuid().ToString(),
+            description: request.description,
+            userId: user.Id
+        );
+        var apiKeyRepository = _uow.GetRepository<ApiKeyRepositoryPort>();
+        await apiKeyRepository.AddAsync(apiKey);
         await _uow.CompleteAsync(cancellationToken);
-
         return Result.Ok();
     }
 }

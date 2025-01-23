@@ -2,18 +2,23 @@ using Application;
 using Application.Common;
 using Domain.Account.Port;
 using Domain.Common;
+using Infrastructure;
+using Infrastructure.Messaging;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repository.Account;
 using Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Presentation.API.Account;
+using Presentation.API.Chat;
 using Presentation.API.Logging;
 using Presentation.API.Middleware;
 using Presentation.API.Swagger;
 using Presentation.Extensions;
+using System.Configuration;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,6 +36,9 @@ builder.Services.Configure<JwtSettings>(
 
 // Register JWT Generator
 builder.Services.AddSingleton<IJWTGenerator, JWTGenerator>();
+
+// Apache Kafka Producer
+builder.Services.AddKafkaServices(builder.Configuration);
 
 // Configure Authentication
 builder.Services.AddAuthentication(options =>
@@ -118,5 +126,5 @@ app.UseMiddleware<ExceptionMiddleware>();
 var routeGroup = app.MapGroup("api/v1");
 routeGroup.MapAccountEndpoints();
 routeGroup.MapLoggingEndpoints();
-
+routeGroup.MapChatEndpoints();
 app.Run();

@@ -120,6 +120,64 @@ namespace Infrastructure.Persistence.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Chat.Model.ChatHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("LastMessageAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ChatHistory");
+                });
+
+            modelBuilder.Entity("Domain.Chat.Model.ChatMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ChatHistoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<double?>("TokenCount")
+                        .HasColumnType("double precision");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatHistoryId");
+
+                    b.ToTable("ChatMessage");
+                });
+
             modelBuilder.Entity("Domain.Logging.Model.Log", b =>
                 {
                     b.Property<Guid>("Id")
@@ -219,6 +277,28 @@ namespace Infrastructure.Persistence.Migrations
                         .HasForeignKey("UserId");
                 });
 
+            modelBuilder.Entity("Domain.Chat.Model.ChatHistory", b =>
+                {
+                    b.HasOne("Domain.Account.Model.User", "User")
+                        .WithMany("ChatHistories")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Chat.Model.ChatMessage", b =>
+                {
+                    b.HasOne("Domain.Chat.Model.ChatHistory", "ChatHistory")
+                        .WithMany("Messages")
+                        .HasForeignKey("ChatHistoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ChatHistory");
+                });
+
             modelBuilder.Entity("Domain.Logging.Model.Log", b =>
                 {
                     b.HasOne("Domain.Account.Model.ApiKey", "ApiKey")
@@ -246,9 +326,16 @@ namespace Infrastructure.Persistence.Migrations
                 {
                     b.Navigation("ApiKeys");
 
+                    b.Navigation("ChatHistories");
+
                     b.Navigation("Logs");
 
                     b.Navigation("RefreshTokens");
+                });
+
+            modelBuilder.Entity("Domain.Chat.Model.ChatHistory", b =>
+                {
+                    b.Navigation("Messages");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,4 +1,5 @@
-﻿using Domain.Logging.Model;
+﻿using Domain.Chat.Model;
+using Domain.Logging.Model;
 
 namespace Domain.Account.Model;
 public class User
@@ -11,6 +12,7 @@ public class User
     public List<RefreshToken> RefreshTokens { get; private set; } = new List<RefreshToken>();
     public List<Log> Logs { get; private set; } = new List<Log>();
     public DateTime CreatedAt { get; private set; }
+    public List<ChatHistory> ChatHistories { get; private set; } = new List<ChatHistory>();
 
     public User(string username, string email, string passwordHash)
     {
@@ -22,6 +24,7 @@ public class User
         ApiKeys = new List<ApiKey>();
         RefreshTokens = new List<RefreshToken>();
         Logs = new List<Log>();
+        ChatHistories = new List<ChatHistory>();
     }
     public void CreateNewApiKey(string name, string? description)
     {
@@ -42,5 +45,10 @@ public class User
     public void RemoveOldRefreshTokens(int daysToKeep)
     {
         RefreshTokens.RemoveAll(x => !x.IsActive && x.CreatedAt.AddDays(daysToKeep) <= DateTime.UtcNow);
+    }
+
+    public void AddChatHistory(ChatHistory chatHistory)
+    {
+        ChatHistories.Add(chatHistory);
     }
 }

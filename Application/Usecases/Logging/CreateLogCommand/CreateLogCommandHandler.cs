@@ -5,6 +5,7 @@ using Domain.Logging.Model;
 using Domain.Logging.Port;
 using FluentResults;
 using FluentValidation;
+
 using MediatR;
 
 namespace Application.Usecases.Logging.CreateLogCommand;
@@ -13,11 +14,18 @@ public class CreateLogCommandHandler : IRequestHandler<CreateLogCommand, Result<
 {
     private readonly IUnitOfWork _uow;
     private readonly IValidator<CreateLogCommand> _validator;
-
-    public CreateLogCommandHandler(IUnitOfWork uow, IValidator<CreateLogCommand> validator)
+    private readonly IMessagingProducer _messagingProducer;
+    private readonly IKafkaSettings _kafkaSettings;
+    public CreateLogCommandHandler(
+            IUnitOfWork uow,
+            IValidator<CreateLogCommand> validator,
+            IMessagingProducer messagingProducer,
+            IKafkaSettings kafkaSettings)
     {
         _uow = uow;
         _validator = validator;
+        _messagingProducer = messagingProducer;
+        _kafkaSettings = kafkaSettings;
     }
 
     public async Task<Result<CreateLogResponse>> Handle(CreateLogCommand request, CancellationToken cancellationToken)
@@ -25,10 +33,11 @@ public class CreateLogCommandHandler : IRequestHandler<CreateLogCommand, Result<
         var validation = await _validator.ValidateAsync(request, cancellationToken);
         if (!validation.IsValid)
             return validation.ToResult<CreateLogResponse>();
+
         var apiKey = await _uow.GetRepository<ApiKeyRepositoryPort>().FindApiKey(request.ApiKeyId, cancellationToken);
         if (apiKey == null)
             return Result.Fail(new Error("Cannot find API key"));
-        
+
         var log = new Log(
             action: request.Action,
             description: request.Description,
@@ -44,9 +53,11 @@ public class CreateLogCommandHandler : IRequestHandler<CreateLogCommand, Result<
             stackTrace: request.StackTrace
         );
 
-
         await _uow.GetRepository<LogRepositoryPort>().AddAsync(log, cancellationToken);
         await _uow.CompleteAsync(cancellationToken);
+        var message = CreateLogMessage.FromLog(log);
+        var topic = _kafkaSettings.Topics["LogVectorization"].Name;
+        _messagingProducer.SendMessage(topic, "LOG", message);
 
         return Result.Ok(new CreateLogResponse(
             id: log.Id,
