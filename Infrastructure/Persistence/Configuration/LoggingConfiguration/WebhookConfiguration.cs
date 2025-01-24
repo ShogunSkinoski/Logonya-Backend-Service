@@ -2,7 +2,7 @@ using Domain.Logging.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Persistence.Configuration.Logging;
+namespace Infrastructure.Persistence.Configuration.LoggingConfiguration;
 
 public class WebhookConfiguration : IEntityTypeConfiguration<Webhook>
 {
@@ -43,4 +43,4 @@ public class WebhookConfiguration : IEntityTypeConfiguration<Webhook>
         builder.HasIndex(w => w.UserId);
         builder.HasIndex(w => w.IsActive);
     }
-} 
+}

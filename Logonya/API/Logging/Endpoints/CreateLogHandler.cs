@@ -1,6 +1,5 @@
 ﻿using Application.Usecases.Logging.CreateLogCommand;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.API.Logging;

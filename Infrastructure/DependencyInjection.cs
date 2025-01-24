@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Anthropic.SDK;
+using Infrastructure.Services.BackgroundServices;
 
 namespace Infrastructure;
 
@@ -43,8 +44,12 @@ public static class DependencyInjection
         services.AddHttpClient<IRAGService, RAGService>();
         // Register webhook related services
         services.AddScoped<WebhookRepositoryPort, EfWebhookRepository>();
+        
         services.AddScoped<IWebhookService, WebhookService>();
         services.AddHostedService<WebhookProcessingService>();
+
+        services.AddScoped<AlertRepositoryPort, EfAlertRepository>();
+        services.AddHostedService<AlertMonitoringService>();
         return services;
     }
 }

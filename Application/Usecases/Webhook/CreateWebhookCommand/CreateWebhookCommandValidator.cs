@@ -45,7 +45,10 @@ public class CreateWebhookCommandValidator : BaseValidator<CreateWebhookCommand>
             WebhookEvents.LOG_CREATED,
             WebhookEvents.ERROR_DETECTED,
             WebhookEvents.RATE_LIMIT_EXCEEDED,
-            WebhookEvents.API_KEY_EXPIRED
+            WebhookEvents.API_KEY_EXPIRED,
+            WebhookEvents.ALERT_TRIGGERED,
+            WebhookEvents.ALERT_RESOLVED
+
         };
 
         return validEvents.Contains(eventType);
@@ -56,5 +59,7 @@ public class CreateWebhookCommandValidator : BaseValidator<CreateWebhookCommand>
         public const string ERROR_DETECTED = "error.detected";
         public const string RATE_LIMIT_EXCEEDED = "rate_limit.exceeded";
         public const string API_KEY_EXPIRED = "api_key.expired";
+        public const string ALERT_TRIGGERED = "alert.triggered";
+        public const string ALERT_RESOLVED = "alert.resolved";
     }
 } 

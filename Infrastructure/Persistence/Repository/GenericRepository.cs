@@ -1,5 +1,6 @@
 ﻿using Domain.Common;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Infrastructure.Persistence.Repository;
@@ -44,7 +45,35 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
     {
         _dbSet.Remove(entity);
     }
+    public virtual async Task<IEnumerable<TEntity>> GetAllAsync(
+        Expression<Func<TEntity, bool>>? filter = null,
+        Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
+        string? includeProperties = null,
+        CancellationToken cancellationToken = default)
+    {
 
+        IQueryable<TEntity> query = _dbSet;
+
+        if (filter != null)
+        {
+            query = query.Where(filter);
+        }
+
+        if (includeProperties != null)
+        {
+            foreach (var includeProperty in includeProperties.Split
+                (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                query = query.Include(includeProperty);
+            }
+        }
+        if (orderBy != null)
+        {
+            return await orderBy(query).ToListAsync(cancellationToken);
+        }
+
+        return await query.ToListAsync(cancellationToken);
+    }
     public void RemoveRange(IEnumerable<TEntity> entities)
     {
         _dbSet.RemoveRange(entities);

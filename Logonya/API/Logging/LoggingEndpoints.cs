@@ -1,14 +1,20 @@
 ﻿
-using Presentation.Extensions;
-
 namespace Presentation.API.Logging;
 
 public static partial class LoggingEndpoints
 {
-    public static RouteGroupBuilder MapLoggingEndpoints(this RouteGroupBuilder builder)
+    public static void MapLoggingEndpoints(this IEndpointRouteBuilder app)
     {
-        builder.MapPost("log", CreateLogHandler).RequireApiKey();
-        return builder;
-    }
+        var group = app.MapGroup("/api/logging")
+            .WithTags("Logging")
+            .RequireAuthorization();
 
+        group.MapPost("/", CreateLogHandler);
+        group.MapGet("/replay", ReplayLogHandler);
+
+        
+        var alertGroup = group.MapGroup("/alerts");
+        alertGroup.MapPost("/", CreateAlertHandler);
+
+    }
 }
